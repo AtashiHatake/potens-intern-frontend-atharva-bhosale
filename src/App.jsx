@@ -1,6 +1,9 @@
 // src/App.jsx
-import React, { useState } from 'react';
-import { translations } from './utils/translation';
+import React, { useState, useEffect } from 'react';
+import { translations } from './utils/translations'; // ensure this path is correct
+import CategorySelection from './components/CategorySelection';
+import DetailsInput from './components/DetailsInput';
+import Confirmation from './components/Confirmation';
 import './index.css';
 
 export default function App() {
@@ -8,22 +11,47 @@ export default function App() {
   const [lang, setLang] = useState('en'); 
   const t = translations[lang]; 
 
-  const [reportData, setReportData] = useState({
+  const initialReportState = {
     category: '',
     description: '',
     photo: null,
     referenceId: ''
-  });
+  };
+  const [reportData, setReportData] = useState(initialReportState);
 
   const toggleLanguage = () => {
     setLang(prev => prev === 'en' ? 'mr' : 'en');
   };
 
+  const isNextDisabled = () => {
+    if (currentStep === 1 && !reportData.category) return true;
+    if (currentStep === 2 && !reportData.description.trim()) return true;
+    return false;
+  };
+
+  // Requirement: Save to localStorage (Offline Persistence)
+  const handleSubmit = () => {
+    const refId = 'PRAS-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    const finalData = { ...reportData, referenceId: refId, timestamp: new Date().toISOString() };
+    
+    setReportData(finalData);
+    
+    // Save to localStorage
+    const existingReports = JSON.parse(localStorage.getItem('civic_reports') || '[]');
+    existingReports.push(finalData);
+    localStorage.setItem('civic_reports', JSON.stringify(existingReports));
+
+    setCurrentStep(3);
+  };
+
+  const resetForm = () => {
+    setReportData(initialReportState);
+    setCurrentStep(1);
+  };
+
   return (
-    // Outer wrapper: Full width, full height
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col selection:bg-slate-900 selection:text-white">
       
-      {/* Header spans full width on desktop */}
       <header className="px-6 py-4 border-b-2 border-slate-900 bg-white flex justify-between items-center sticky top-0 z-50">
         <h1 className="font-mono font-bold tracking-tight text-lg uppercase">{t.navTitle}</h1>
         <button 
@@ -34,10 +62,8 @@ export default function App() {
         </button>
       </header>
 
-      {/* Main content centers the form on desktop, fills screen on mobile */}
       <main className="flex-1 w-full flex flex-col items-center p-4 md:p-8 lg:p-12">
         
-        {/* The Card Container - Keeps inputs readable on large screens */}
         <div className="w-full max-w-md bg-white border-2 border-slate-900 p-6 shadow-[8px_8px_0px_0px_rgba(15,23,42,0.1)] flex flex-col flex-1 md:flex-none md:min-h-[500px]">
           
           <div className="text-xs font-mono text-slate-500 mb-4 uppercase tracking-wider border-b border-slate-200 pb-2">
@@ -47,31 +73,64 @@ export default function App() {
           {currentStep === 1 && (
             <div className="animate-fade-in flex-1 flex flex-col">
               <h2 className="text-2xl font-bold font-mono tracking-tight mb-6">{t.step1Title}</h2>
-              <div className="flex-1 p-6 border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-sm font-mono">
-                [Category Selection Form Placeholder]
+              <div className="flex-1">
+                <CategorySelection 
+                  categories={t.categories}
+                  selectedCategory={reportData.category}
+                  onSelect={(categoryId) => setReportData({ ...reportData, category: categoryId })}
+                />
               </div>
             </div>
           )}
 
-          {/* Navigation Controls */}
-          <div className="mt-8 flex gap-3">
-            {currentStep > 1 && (
+          {currentStep === 2 && (
+            <div className="animate-fade-in flex-1 flex flex-col">
+              <h2 className="text-2xl font-bold font-mono tracking-tight mb-6">{t.step2Title}</h2>
+              <div className="flex-1">
+                <DetailsInput 
+                  labels={t.labels}
+                  reportData={reportData}
+                  setReportData={setReportData}
+                  lang={lang}
+                />
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <Confirmation 
+              labels={t.labels} 
+              reportData={reportData} 
+              onReset={resetForm} 
+            />
+          )}
+
+          {/* Navigation Controls - Hidden on Step 3 */}
+          {currentStep < 3 && (
+            <div className="mt-8 flex gap-3">
+              {currentStep > 1 && (
+                <button 
+                  onClick={() => setCurrentStep(prev => prev - 1)} 
+                  className="px-4 py-3 border-2 border-slate-900 bg-white text-sm font-mono font-bold uppercase cursor-pointer hover:bg-slate-50 transition-colors"
+                >
+                  {t.labels.backBtn}
+                </button>
+              )}
+              
               <button 
-                onClick={() => setCurrentStep(prev => prev - 1)} 
-                className="px-4 py-3 border-2 border-slate-900 bg-white text-sm font-mono font-bold uppercase cursor-pointer hover:bg-slate-50 transition-colors"
+                onClick={currentStep === 2 ? handleSubmit : () => setCurrentStep(prev => prev + 1)} 
+                disabled={isNextDisabled()}
+                className={`px-4 py-3 border-2 border-slate-900 text-sm font-mono font-bold uppercase flex-1 transition-all
+                  ${isNextDisabled()
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-70'
+                    : 'bg-slate-900 text-white shadow-[4px_4px_0px_0px_rgba(15,23,42,0.2)] active:translate-x-1 active:translate-y-1 active:shadow-none cursor-pointer'
+                  }
+                `}
               >
-                {t.labels.backBtn}
+                {currentStep === 2 ? t.labels.submitBtn : t.labels.nextBtn}
               </button>
-            )}
-            {currentStep < 3 && (
-              <button 
-                onClick={() => setCurrentStep(prev => prev + 1)} 
-                className="px-4 py-3 bg-slate-900 text-white border-2 border-slate-900 text-sm font-mono font-bold uppercase flex-1 shadow-[4px_4px_0px_0px_rgba(15,23,42,0.2)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-              >
-                {t.labels.nextBtn}
-              </button>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
       </main>
