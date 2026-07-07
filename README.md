@@ -1,10 +1,14 @@
 # Prasashan Setu: Civic Reporting PWA
 
+**Live Demo:** https://potens-intern-frontend-atharva-bhos.vercel.app/
+
+---
+
 ## Project Description
 
-Prasashan Setu is a **mobile-first, offline-capable Progressive Web App (PWA)** designed to help citizens quickly report local civic issues such as potholes, streetlight failures, water leakage, garbage collection problems, and power outages.
+Prasashan Setu is a **mobile-first, offline-capable Progressive Web App (PWA)** designed to help citizens quickly report local civic issues such as potholes, streetlight failures, water leakage, garbage collection problems, power outages, and other public infrastructure issues.
 
-The application generates a unique reference ID for every complaint and provides a fully **bilingual (English + Marathi)** interface with **voice dictation** support for accessibility.
+The application generates a unique reference ID for every complaint and provides a **multilingual interface** with **voice dictation** support, making it easier for citizens from different linguistic backgrounds to submit complaints.
 
 This project was developed as part of the **Potens IT Services Frontend Internship Take-Home Evaluation**, with a strong focus on:
 
@@ -16,6 +20,40 @@ This project was developed as part of the **Potens IT Services Frontend Internsh
 
 ---
 
+# Live Demo
+
+https://potens-intern-frontend-atharva-bhos.vercel.app/
+
+---
+
+# Features
+
+- Report multiple civic issues
+- Offline-first Progressive Web App
+- Unique complaint reference ID generation
+- Voice-to-text complaint description
+- Local complaint persistence
+- Responsive mobile-first UI
+- Neubrutalist design system
+- Multi-language support
+- Fast loading even on Slow 3G
+
+---
+
+# Supported Languages
+
+The application currently supports:
+
+- 🇬🇧 English
+- 🇮🇳 Hindi
+- 🇮🇳 Marathi
+- 🇮🇳 Haryanvi
+- 🇮🇳 Assamese
+
+The lightweight translation architecture allows additional languages to be added easily without using external libraries.
+
+---
+
 # Tech Stack
 
 - **React** – Component-based UI and state management
@@ -23,6 +61,7 @@ This project was developed as part of the **Potens IT Services Frontend Internsh
 - **Vite** – Fast development server and build tool
 - **Web Speech API** – Native browser voice-to-text dictation
 - **Service Workers** – Offline caching and PWA functionality
+- **localStorage** – Offline complaint persistence
 
 ---
 
@@ -31,18 +70,18 @@ This project was developed as part of the **Potens IT Services Frontend Internsh
 ```text
 potens-intern-frontend-atharva-bhosale/
 ├── public/
-│   ├── manifest.json       
-│   └── sw.js               
+│   ├── manifest.json
+│   └── sw.js
 ├── src/
 │   ├── components/
 │   │   ├── CategorySelection.jsx
 │   │   ├── Confirmation.jsx
 │   │   └── DetailsInput.jsx
 │   ├── utils/
-│   │   └── translations.js 
-│   ├── App.jsx             
-│   ├── index.css           
-│   └── main.jsx            
+│   │   └── translations.js
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
 ├── index.html
 ├── package.json
 ├── tailwind.config.js
@@ -51,7 +90,7 @@ potens-intern-frontend-atharva-bhosale/
 
 ---
 
-# How to setup on your machine
+# Getting Started
 
 ## 1. Clone the repository
 
@@ -77,7 +116,7 @@ npm install
 npm run dev
 ```
 
-## 5. Build and preview (Recommended for testing PWA features)
+## 5. Build & Preview (Recommended for PWA Testing)
 
 ```bash
 npm run build
@@ -88,48 +127,52 @@ npm run preview
 
 # Slow 3G & Offline Optimization
 
-The application was designed to remain responsive even under Chrome DevTools **Slow 3G** network throttling.
+The application was designed to remain responsive under Chrome DevTools **Slow 3G** network throttling.
 
-### Service Worker Caching
+## Service Worker Caching
 
-A custom `sw.js` caches the application shell, including:
+A custom `sw.js` caches the application shell including:
 
-- `index.html`
-- Compiled JavaScript
+- index.html
+- JavaScript assets
 - CSS assets
 
-After the first successful load, the application launches directly from cache, significantly reducing loading time.
+After the initial load, subsequent launches are served directly from cache, significantly improving perceived performance.
 
-### Instant Local Persistence
+---
 
-Rather than waiting for a backend response, submitted complaints are immediately stored in the browser using `localStorage`.
+## Instant Local Persistence
 
-This enables:
+Instead of waiting for a backend response, complaints are immediately stored using **localStorage**.
+
+Benefits include:
 
 - Instant reference ID generation
-- Offline usability
-- Zero network dependency during submission
+- Offline complaint submission
+- Zero network dependency
+- Immediate user feedback
 
 ---
 
 # What Makes This Project Different
 
-## Neubrutalist UI 
+## Neubrutalist UI
 
-Instead of a conventional corporate interface, the application follows a **Neubrutalist** design language featuring:
+Rather than following a conventional corporate dashboard aesthetic, the application adopts a **Neubrutalist** design language featuring:
 
 - Bold borders
-- High-contrast shadows
+- Thick shadows
 - Sharp corners
 - Strong visual hierarchy
+- High contrast interface
 
-This approach creates a tactile, accessible, and authoritative user experience.
+This creates a tactile, accessible, and authoritative user experience.
 
 ---
 
-## Lightweight Bilingual Support
+## Lightweight Multilingual Support
 
-Instead of introducing heavyweight internationalization libraries such as `react-i18next`, the project uses a centralized translation dictionary:
+Instead of using heavyweight internationalization libraries such as **react-i18next**, the project relies on a centralized translation dictionary located at:
 
 ```text
 src/utils/translations.js
@@ -139,8 +182,9 @@ Benefits include:
 
 - Instant language switching
 - Minimal bundle size
-- No runtime overhead
-- No additional dependencies
+- Zero runtime overhead
+- No external dependencies
+- Easy addition of new languages
 
 ---
 
@@ -148,7 +192,12 @@ Benefits include:
 
 Using the browser's native **Web Speech API**, users can dictate complaint descriptions instead of typing.
 
-This improves accessibility while keeping the application lightweight by avoiding third-party speech recognition libraries.
+Advantages:
+
+- Improved accessibility
+- Faster complaint submission
+- Lightweight implementation
+- No third-party speech libraries
 
 ---
 
@@ -157,3 +206,20 @@ This improves accessibility while keeping the application lightweight by avoidin
 | Tool | Approx. Messages | Purpose |
 |------|------------------|---------|
 | Gemini Pro | ~10 | Generated the initial Service Worker (`sw.js`) boilerplate and assisted in debugging offline caching strategies for Slow 3G and PWA requirements. |
+| ChatGPT (GPT-5.5) | ~6 | Assisted in expanding multilingual support, refining translation structure, improving README documentation, and polishing project presentation. |
+
+---
+
+# Future Improvements
+
+- Backend integration
+- User authentication
+- Complaint tracking dashboard
+- Push notifications
+- Image upload support
+- Geolocation-based complaint reporting
+- Admin dashboard
+- Complaint analytics
+
+---
+

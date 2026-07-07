@@ -1,6 +1,5 @@
-// src/App.jsx
 import React, { useState, useEffect } from 'react';
-import { translations } from './utils/translations'; // ensure this path is correct
+import { translations } from './utils/translations';
 import CategorySelection from './components/CategorySelection';
 import DetailsInput from './components/DetailsInput';
 import Confirmation from './components/Confirmation';
@@ -19,24 +18,18 @@ export default function App() {
   };
   const [reportData, setReportData] = useState(initialReportState);
 
-  const toggleLanguage = () => {
-    setLang(prev => prev === 'en' ? 'mr' : 'en');
-  };
-
   const isNextDisabled = () => {
     if (currentStep === 1 && !reportData.category) return true;
     if (currentStep === 2 && !reportData.description.trim()) return true;
     return false;
   };
 
-  // Requirement: Save to localStorage (Offline Persistence)
   const handleSubmit = () => {
     const refId = 'PRAS-' + Math.random().toString(36).substr(2, 6).toUpperCase();
     const finalData = { ...reportData, referenceId: refId, timestamp: new Date().toISOString() };
     
     setReportData(finalData);
     
-    // Save to localStorage
     const existingReports = JSON.parse(localStorage.getItem('civic_reports') || '[]');
     existingReports.push(finalData);
     localStorage.setItem('civic_reports', JSON.stringify(existingReports));
@@ -54,12 +47,18 @@ export default function App() {
       
       <header className="px-6 py-4 border-b-2 border-slate-900 bg-white flex justify-between items-center sticky top-0 z-50">
         <h1 className="font-mono font-bold tracking-tight text-lg uppercase">{t.navTitle}</h1>
-        <button 
-          onClick={toggleLanguage}
-          className="px-3 py-1.5 text-xs font-mono font-bold uppercase border-2 border-slate-900 bg-white shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-[0px_0px_0px_0px_rgba(15,23,42,1)] transition-all cursor-pointer"
+        
+        <select 
+          value={lang}
+          onChange={(e) => setLang(e.target.value)}
+          className="px-2 py-1.5 text-xs font-mono font-bold uppercase border-2 border-slate-900 bg-white shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] focus:outline-none cursor-pointer hover:bg-slate-50 transition-colors"
         >
-          {lang === 'en' ? 'मराठी' : 'English'}
-        </button>
+          <option value="en">English</option>
+          <option value="hi">हिंदी (Hindi)</option>
+          <option value="mr">मराठी (Marathi)</option>
+          <option value="hr">हरियाणवी (Haryanvi)</option>
+          <option value="as">অসমীয়া (Assamese)</option>
+        </select>
       </header>
 
       <main className="flex-1 w-full flex flex-col items-center p-4 md:p-8 lg:p-12">
@@ -105,7 +104,6 @@ export default function App() {
             />
           )}
 
-          {/* Navigation Controls - Hidden on Step 3 */}
           {currentStep < 3 && (
             <div className="mt-8 flex gap-3">
               {currentStep > 1 && (

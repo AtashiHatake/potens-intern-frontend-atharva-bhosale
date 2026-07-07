@@ -4,8 +4,8 @@ export default function DetailsInput({ labels, reportData, setReportData, lang }
   const [isListening, setIsListening] = useState(false);
   const [supportSpeech, setSupportSpeech] = useState(true);
   
-  // We use a ref to hold the recognition instance so we can manually stop it
   const recognitionRef = useRef(null);
+  const baseTextRef = useRef(''); 
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -14,7 +14,6 @@ export default function DetailsInput({ labels, reportData, setReportData, lang }
   }, []);
 
   const toggleVoiceInput = () => {
-    // If it's already listening, user clicked to stop it manually.
     if (isListening) {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -23,13 +22,18 @@ export default function DetailsInput({ labels, reportData, setReportData, lang }
       return;
     }
 
-    // Start listening
+    baseTextRef.current = reportData.description;
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
 
-    recognition.lang = lang === 'mr' ? 'mr-IN' : 'en-US';
-    // continuous=true keeps it listening even if you pause speaking
+    const getSpeechLangCode = (appLang) => {
+      const langMap = { en: 'en-US', hi: 'hi-IN', mr: 'mr-IN', as: 'en-US', hr: 'hi-IN' };
+      return langMap[appLang] || 'en-US';
+    };
+
+    recognition.lang = getSpeechLangCode(lang);
     recognition.continuous = true; 
     recognition.interimResults = true; 
 
@@ -38,21 +42,15 @@ export default function DetailsInput({ labels, reportData, setReportData, lang }
     };
 
     recognition.onresult = (event) => {
-      // Gather all final transcripts from the session
-      let finalTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript + ' ';
-        }
+      let sessionTranscript = '';
+      for (let i = 0; i < event.results.length; ++i) {
+        sessionTranscript += event.results[i][0].transcript;
       }
       
-      // Append the new final text to the existing description
-      if (finalTranscript) {
-        setReportData(prev => ({
-          ...prev,
-          description: prev.description ? prev.description + ' ' + finalTranscript.trim() : finalTranscript.trim()
-        }));
-      }
+      setReportData(prev => ({
+        ...prev,
+        description: (baseTextRef.current + ' ' + sessionTranscript).trim()
+      }));
     };
 
     recognition.onerror = (event) => {
@@ -61,7 +59,6 @@ export default function DetailsInput({ labels, reportData, setReportData, lang }
     };
 
     recognition.onend = () => {
-      // It will only end when we call stop() or if the API forces a timeout
       setIsListening(false);
     };
 
@@ -100,7 +97,6 @@ export default function DetailsInput({ labels, reportData, setReportData, lang }
             }
           `}
         >
-          {/* We change the visual state to make it clear the mic is hot */}
           <span className="text-xl">{isListening ? '🛑' : '🎤'}</span>
           <span className="uppercase tracking-tight">
             {isListening ? "Stop Recording" : labels.voiceInput}
